@@ -11,10 +11,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    "mongodb://localhost:27017/foodbuyDB", 
+    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
-        useUnifiedTopology: true
+        useUnifiedTopology: true, 
+        useFindAndModify: false
     }
 );
 
@@ -113,7 +114,10 @@ app.get("/users", function(req, res) {
 
 
 
-
-app.listen(3000, function() {
-    console.log("Server started on port 3000");
+let port = process.env.PORT;
+if(port == null || port == ""){
+  port = 3000;
+}
+app.listen(port, function() {
+  console.log("Server has started successfully");
 });
