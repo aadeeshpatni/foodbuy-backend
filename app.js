@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const _ = require("lodash");
-const { response } = require("express");
 
 const app = express();
 
@@ -11,10 +10,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
+    "mongodb://localhost:27017/foodbuyDB",
+    //"mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
-        useUnifiedTopology: true, 
+        useUnifiedTopology: true,
         useFindAndModify: false
     }
 );
@@ -37,7 +37,17 @@ const userSchema = new mongoose.Schema({
 //makes a 'users' collection on foodbuyDB
 const User = mongoose.model("User", userSchema);
 
+const productSchema = new mongoose.Schema({
+    name: String,
+    price: Number,
+    quantity: Number,
+    unit: String,
+    productType: String,
+    seller: userSchema
+});
+const Product = mongoose.model("Product", productSchema);
 
+//path: url/users?userType=customer
 app.post("/users", function(req, res) {
     const userType = req.query.userType;
     const newUser = new User({
@@ -65,15 +75,15 @@ app.post("/users", function(req, res) {
         } else {
             const responseObject = {
                 error: false,
-                message: "user saved successfully"
+                message: "user saved successfully",
+                user: newUser
             }
             res.send(responseObject);
         }
     });
 });
 
-
-//users?email=abcd@ab.com
+//path: url/users?email=abcd@ab.com
 app.get("/users", function(req, res) {
     const userEmail = req.query.email;
     let responseObject = {
@@ -109,8 +119,75 @@ app.get("/users", function(req, res) {
             }
         }
     })
-})
+});
 
+
+app.get("/products", function(req, res) {
+    Product.find({}, function(err, foundProducts) {
+        if(err) {
+            const responseObject = {
+                error: true,
+                message: err
+            }
+            res.send(responseObject);
+        } else {
+            const responseObject = {
+                error: false,
+                products: foundProducts
+            }
+            res.send(responseObject);
+        }
+    })
+});
+
+app.post("/products", function(req, res) {
+    const newProduct = new Product({
+        name: req.body.name,
+        price: req.body.price,
+        quantity: req.body.quantity,
+        unit: req.body.unit,
+        productType: req.body.productType,
+        seller: req.body.seller
+    });
+    newProduct.save(function(err) {
+        if(err) {
+            const responseObject = {
+                error: true,
+                message: err
+            }
+            res.send(responseObject);
+        } else {
+            const responseObject = {
+                error: false,
+                message: "product added successfully",
+                product: newProduct
+            }
+            res.send(responseObject);
+        }
+    });
+});
+
+//path: url/products?productId=[_id of product]
+app.patch("/products", function(req, res) {
+    const productId = req.query.productId;
+    const update = req.body.update;
+    Product.findOneAndUpdate({_id: productId}, update, {new: true}, function(err, updatedProduct) {
+        if(err) {
+            const responseObject = {
+                error: true,
+                message: err
+            }
+            res.send(responseObject);
+        } else {
+            const responseObject = {
+                error: false,
+                message: "product updated successfully",
+                product: updatedProduct
+            }
+            res.send(responseObject);
+        }
+    });
+});
 
 
 
