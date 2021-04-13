@@ -10,8 +10,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    "mongodb://localhost:27017/foodbuyDB",
-    //"mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
+    //"mongodb://localhost:27017/foodbuyDB",
+    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
@@ -42,7 +42,12 @@ const productSchema = new mongoose.Schema({
     price: Number,
     quantity: Number,
     unit: String,
-    productType: String,
+    sellerType: String,
+    description: {
+        type: String,
+        subType: String,
+        text: String
+    },
     seller: userSchema
 });
 const Product = mongoose.model("Product", productSchema);
@@ -146,7 +151,8 @@ app.post("/products", function(req, res) {
         price: req.body.price,
         quantity: req.body.quantity,
         unit: req.body.unit,
-        productType: req.body.productType,
+        sellerType: req.body.sellerType,
+        description: req.body.description,
         seller: req.body.seller
     });
     newProduct.save(function(err) {
