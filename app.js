@@ -55,6 +55,8 @@ const Product = mongoose.model("Product", productSchema);
 
 //path: url/users?userType=customer
 app.post("/users", function(req, res) {
+    console.log("body: " + req.body + "\n");
+    console.log("req: " + req);
     const userType = req.query.userType;
     const newUser = new User({
         email: req.body.email,
@@ -147,6 +149,8 @@ app.get("/products", function(req, res) {
 });
 
 app.post("/products", function(req, res) {
+    console.log("body: " + req.body + "\n");
+    console.log("req: " + req);
     const newProduct = new Product({
         name: req.body.name,
         price: req.body.price,
@@ -176,6 +180,8 @@ app.post("/products", function(req, res) {
 
 //path: url/products?productId=[_id of product]
 app.patch("/products", function(req, res) {
+    console.log("body: " + req.body + "\n");
+    console.log("req: " + req);
     const productId = req.query.productId;
     const update = req.body.update;
     Product.findOneAndUpdate({_id: productId}, update, {new: true}, function(err, updatedProduct) {
