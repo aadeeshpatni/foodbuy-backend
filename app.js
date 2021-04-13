@@ -62,7 +62,12 @@ app.post("/users", function(req, res) {
         name: req.body.name,
         userType: userType,
         storeName: req.body.storeName,
-        address: req.body.address,
+        address: {
+            street: req.body.street,
+            pincode: req.body.pincode,
+            city: req.body.city,
+            state: req.body.state
+        },
         phone: req.body.phone
     });
 
