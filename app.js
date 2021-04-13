@@ -37,17 +37,18 @@ const userSchema = new mongoose.Schema({
 //makes a 'users' collection on foodbuyDB
 const User = mongoose.model("User", userSchema);
 
+const descriptionSchema = new mongoose.Schema({
+    type: String,
+    subType: String,
+    text: String
+});
 const productSchema = new mongoose.Schema({
     name: String,
     price: Number,
     quantity: Number,
     unit: String,
     sellerType: String,
-    description: {
-        type: String,
-        subType: String,
-        text: String
-    },
+    description: descriptionSchema,
     seller: userSchema
 });
 const Product = mongoose.model("Product", productSchema);
