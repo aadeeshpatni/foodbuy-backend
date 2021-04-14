@@ -10,7 +10,7 @@ app.use(bodyParser.json({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    //"mongodb://localhost:27017/foodbuyDB",
+    // "mongodb://localhost:27017/foodbuyDB",
     "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
@@ -60,7 +60,7 @@ app.post("/users", function(req, res) {
     const newUser = new User(req.body);
     newUser.userType = userType;
 
-    newUser.save(function(err, savedUser) {
+    newUser.save(function(err) {
         if(err) {
             console.log(err);
             const responseObject = {
@@ -72,7 +72,7 @@ app.post("/users", function(req, res) {
             const responseObject = {
                 error: false,
                 message: "user saved successfully",
-                user: savedUser
+                user: newUser
             }
             res.send(responseObject);
         }
@@ -134,7 +134,7 @@ app.post("/products", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
 
     const newProduct = new Product(req.body);
-    newProduct.save(function(err, savedUser) {
+    newProduct.save(function(err) {
         if(err) {
             const responseObject = {
                 error: true,
@@ -146,7 +146,7 @@ app.post("/products", function(req, res) {
             const responseObject = {
                 error: false,
                 message: "product added successfully",
-                product: savedUser
+                product: newProduct
             }
             res.send(responseObject);
         }
