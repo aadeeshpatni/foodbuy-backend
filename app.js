@@ -5,7 +5,7 @@ const _ = require("lodash");
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json({extended: true}));
 
 
 //creating or connecting to foodbuyDB
@@ -57,21 +57,10 @@ const Product = mongoose.model("Product", productSchema);
 app.post("/users", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
     const userType = req.query.userType;
-    const newUser = new User({
-        email: req.body.email,
-        name: req.body.name,
-        userType: userType,
-        storeName: req.body.storeName,
-        address: {
-            street: req.body.street,
-            pincode: req.body.pincode,
-            city: req.body.city,
-            state: req.body.state
-        },
-        phone: req.body.phone
-    });
+    const newUser = new User(req.body);
+    newUser.userType = userType;
 
-    newUser.save(function(err) {
+    newUser.save(function(err, savedUser) {
         if(err) {
             console.log(err);
             const responseObject = {
@@ -83,7 +72,7 @@ app.post("/users", function(req, res) {
             const responseObject = {
                 error: false,
                 message: "user saved successfully",
-                user: newUser
+                user: savedUser
             }
             res.send(responseObject);
         }
@@ -93,12 +82,6 @@ app.post("/users", function(req, res) {
 //path: url/users?email=abcd@ab.com
 app.get("/users", function(req, res) {
     const userEmail = req.query.email;
-    let responseObject = {
-        error: false,
-        message: "no user found",
-        userType: "",
-        user: null
-    }
     
     User.findOne({email: userEmail}, function(err, foundUser) {
         if(err) {
@@ -149,27 +132,21 @@ app.get("/products", function(req, res) {
 
 app.post("/products", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
-    const newProduct = new Product({
-        name: req.body.name,
-        price: req.body.price,
-        quantity: req.body.quantity,
-        unit: req.body.unit,
-        sellerType: req.body.sellerType,
-        description: req.body.description,
-        seller: req.body.seller
-    });
-    newProduct.save(function(err) {
+
+    const newProduct = new Product(req.body);
+    newProduct.save(function(err, savedUser) {
         if(err) {
             const responseObject = {
                 error: true,
                 message: err
             }
+            console.log(err);
             res.send(responseObject);
         } else {
             const responseObject = {
                 error: false,
                 message: "product added successfully",
-                product: newProduct
+                product: savedUser
             }
             res.send(responseObject);
         }
