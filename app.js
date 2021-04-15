@@ -10,8 +10,8 @@ app.use(bodyParser.json({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    "mongodb://localhost:27017/foodbuyDB",
-    //"mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
+    //"mongodb://localhost:27017/foodbuyDB",
+    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
