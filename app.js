@@ -10,8 +10,8 @@ app.use(bodyParser.json({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    // "mongodb://localhost:27017/foodbuyDB",
-    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
+    "mongodb://localhost:27017/foodbuyDB",
+    //"mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
@@ -52,6 +52,25 @@ const productSchema = new mongoose.Schema({
     seller: userSchema
 });
 const Product = mongoose.model("Product", productSchema);
+
+
+const dispatchDetails = {
+    isDispatched: Boolean,
+    dispatchTime: Number
+}
+const deliveryDetails = {
+    isDelivered: Boolean,
+    deliveryTime: Number
+}
+const orderSchema = new mongoose.Schema({
+    buyerId: String,
+    productId: String,
+    orderedQuantity: Number,
+    time: Number,
+    delivery: deliveryDetails
+});
+const Order = mongoose.model("Order", orderSchema);
+
 
 //path: url/users?userType=customer
 app.post("/users", function(req, res) {
@@ -157,7 +176,7 @@ app.post("/products", function(req, res) {
 app.patch("/products", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
     const productId = req.query.productId;
-    const update = req.body.update;
+    const update = req.body;
     Product.findOneAndUpdate({_id: productId}, update, {new: true}, function(err, updatedProduct) {
         if(err) {
             const responseObject = {
@@ -176,6 +195,94 @@ app.patch("/products", function(req, res) {
     });
 });
 
+
+//path: url/placeOrder
+/*
+    request body: 
+    {
+        buyerId: String,
+        productId: String,
+        productQuantity: Float
+    }
+*/
+app.post("/placeOrder", function(req, res) {
+    User.findById(req.body.buyerId, function(err, buyer) {
+        if(err || !buyer) {
+            console.log(err);
+            res.send({
+                error: true,
+                message: "could not find buyer, order not placed",
+                order: null
+            });
+        }
+        else{
+            Product.findById(req.body.productId, function(err, orderedProduct) {
+                if(err || !orderedProduct) {
+                    console.log(err);
+                    res.send({
+                        error: true,
+                        message: "could not find product, order not placed",
+                        order: null
+                    });
+                }
+                else {
+                    if(orderedProduct.quantity >= req.body.orderedQuantity) {
+                        const newQuantity = orderedProduct.quantity - req.body.orderedQuantity;
+                        Product.findByIdAndUpdate(
+                            orderedProduct._id,
+                            {quantity: newQuantity},
+                            {new: true},
+                            function(err, updatedProduct) {
+                                if(err) {
+                                    res.send({
+                                        error: true,
+                                        message: "could not update product, order not placed",
+                                        order: null
+                                    });
+                                }
+                                else{
+                                    const newOrder = new Order({
+                                        buyerId: buyer._id,
+                                        productId: updatedProduct._id,
+                                        orderedQuantity: req.body.orderedQuantity,
+                                        time: Date.now(),
+                                        delivery: {
+                                            isDelivered: false,
+                                            deliveryTime: 0.0
+                                        }
+                                    });
+                                    newOrder.save(function(err) {
+                                        if(err) {
+                                            console.log(err);
+                                            res.send({
+                                                error: true,
+                                                message: "error placing order",
+                                                order: null
+                                            });
+                                        }
+                                        else {
+                                            res.send({
+                                                error: false,
+                                                message: "order placed successfully",
+                                                order: newOrder
+                                            });
+                                        }
+                                    });
+                                }
+                            } 
+                        )
+                    } else {
+                        res.send({
+                            error: true,
+                            message: "could not place order, ordered quantity is not available",
+                            order: null
+                        });
+                    }
+                }
+            })
+        }
+    })
+})
 
 
 let port = process.env.PORT;
