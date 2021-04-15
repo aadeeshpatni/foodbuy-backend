@@ -10,8 +10,8 @@ app.use(bodyParser.json({extended: true}));
 
 //creating or connecting to foodbuyDB
 mongoose.connect(
-    //"mongodb://localhost:27017/foodbuyDB",
-    "mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
+    "mongodb://localhost:27017/foodbuyDB",
+    //"mongodb+srv://admin-aadeesh:test123@cluster0.fks0o.mongodb.net/foodbuyDB", 
     {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
@@ -67,6 +67,7 @@ const orderSchema = new mongoose.Schema({
     productId: String,
     orderedQuantity: Number,
     time: Number,
+    cost: Number,
     delivery: deliveryDetails
 });
 const Order = mongoose.model("Order", orderSchema);
@@ -241,11 +242,13 @@ app.post("/placeOrder", function(req, res) {
                                     });
                                 }
                                 else{
+                                    const orderCost = req.body.orderedQuantity * updatedProduct.price;
                                     const newOrder = new Order({
                                         buyerId: buyer._id,
                                         productId: updatedProduct._id,
                                         orderedQuantity: req.body.orderedQuantity,
                                         time: Date.now(),
+                                        cost: orderCost,
                                         delivery: {
                                             isDelivered: false,
                                             deliveryTime: 0.0
