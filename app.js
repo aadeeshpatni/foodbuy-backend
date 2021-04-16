@@ -132,24 +132,6 @@ app.get("/users", function(req, res) {
 });
 
 
-app.get("/products", function(req, res) {
-    Product.find({}, function(err, foundProducts) {
-        if(err) {
-            const responseObject = {
-                error: true,
-                message: err
-            }
-            res.send(responseObject);
-        } else {
-            const responseObject = {
-                error: false,
-                products: foundProducts
-            }
-            res.send(responseObject);
-        }
-    })
-});
-
 app.post("/products", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
 
@@ -286,6 +268,51 @@ app.post("/placeOrder", function(req, res) {
         }
     })
 })
+
+
+//path: url/products?productName=[name of the product typed by the user]&userType=[user type who is searching, can be 'retailer' or 'customer']
+app.get("/products", function(req, res) {
+    const productName = req.query.productName;
+    const userType = req.query.userType;
+
+    console.log("queries: " + productName + " " + userType);
+
+    const sellerType = (userType === "customer") ? "retailer" : "wholesaler";
+    Product.find(
+        {
+            name: {$regex: productName, $options: "i"}, 
+            sellerType: sellerType
+        },
+        function(err, foundProducts) {
+            if(err) {
+                console.log(err);
+                const responseObject = {
+                    error: true,
+                    message: err,
+                    products: null
+                }
+                res.send(responseObject);
+            } else {
+                if(foundProducts) {
+                    const responseObject = {
+                        error: false,
+                        message: "found products successfully",
+                        products: foundProducts
+                    }
+                    res.send(responseObject);
+                }
+                else {
+                    const responseObject = {
+                        error: false,
+                        message: "no matching products found",
+                        products: null
+                    }
+                    res.send(responseObject);
+                }
+            }
+        }
+    )
+});
 
 
 let port = process.env.PORT;
