@@ -68,6 +68,7 @@ const orderSchema = new mongoose.Schema({
     orderedQuantity: Number,
     time: Number,
     cost: Number,
+    dispatch: dispatchDetails,
     delivery: deliveryDetails
 });
 const Order = mongoose.model("Order", orderSchema);
@@ -231,6 +232,10 @@ app.post("/placeOrder", function(req, res) {
                                         orderedQuantity: req.body.orderedQuantity,
                                         time: Date.now(),
                                         cost: orderCost,
+                                        dispatch: {
+                                            isDispatched: false,
+                                            dispatchTime: 0.0
+                                        },
                                         delivery: {
                                             isDelivered: false,
                                             deliveryTime: 0.0
@@ -293,7 +298,7 @@ app.get("/products", function(req, res) {
                 }
                 res.send(responseObject);
             } else {
-                if(foundProducts) {
+                if(foundProducts.length > 0) {
                     const responseObject = {
                         error: false,
                         message: "found products successfully",
