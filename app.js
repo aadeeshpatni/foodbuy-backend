@@ -201,6 +201,7 @@ app.post("/placeOrder", function(req, res) {
             });
         }
         else{
+            console.log(JSON.stringify(buyer));
             Product.findById(req.body.productId, function(err, orderedProduct) {
                 if(err || !orderedProduct) {
                     console.log(err);
@@ -211,6 +212,8 @@ app.post("/placeOrder", function(req, res) {
                     });
                 }
                 else {
+                    console.log(JSON.stringify(orderedProduct));
+                    console.log("orderedQ: " + req.body.orderedQuantity);
                     if(orderedProduct.quantity >= req.body.orderedQuantity) {
                         const newQuantity = orderedProduct.quantity - req.body.orderedQuantity;
                         Product.findByIdAndUpdate(
@@ -219,6 +222,7 @@ app.post("/placeOrder", function(req, res) {
                             {new: true},
                             function(err, updatedProduct) {
                                 if(err) {
+                                    console.log(err);
                                     res.send({
                                         error: true,
                                         message: "could not update product, order not placed",
@@ -226,6 +230,7 @@ app.post("/placeOrder", function(req, res) {
                                     });
                                 }
                                 else{
+                                    console.log(JSON.stringify(updatedProduct));
                                     const orderCost = req.body.orderedQuantity * updatedProduct.price;
                                     const newOrder = new Order({
                                         buyerId: buyer._id,
