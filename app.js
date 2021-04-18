@@ -190,6 +190,7 @@ app.patch("/products", function(req, res) {
     }
 */
 app.post("/placeOrder", function(req, res) {
+    console.log(JSON.stringify(req.body));
     User.findById(req.body.buyerId, function(err, buyer) {
         if(err || !buyer) {
             console.log(err);
