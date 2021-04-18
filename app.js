@@ -326,6 +326,59 @@ app.get("/products", function(req, res) {
 });
 
 
+//path: url/orders?buyerId=[_id of the user]
+app.get("/orders", function(req, res) {
+    console.log("buyerId: " + req.query.buyerId);
+    Order.find({buyerId: req.query.buyerId}, function(err, foundOrders) {
+        if(err) {
+            console.log(err);
+            res.send({
+                error: true,
+                message: "error finding your orders",
+                orders: null
+            });
+        }
+        else {
+            if(foundOrders.length > 0) {
+
+                const correspondingProducts = [];
+                foundOrders.forEach(function(order, index) {
+                    Product.findById(order.productId, function(err, foundProduct) {
+                        if(err) {
+                            console.log(err);
+                            res.send({
+                                error: true,
+                                message: "error finding your order's product",
+                                orders: null
+                            });
+                        }
+                        else {
+                            correspondingProducts.push(foundProduct);
+                            console.log(foundProduct);
+                            if(index === foundOrders.length-1) {
+                                res.send({
+                                    error: false,
+                                    message: "found orders successfully",
+                                    orders: foundOrders,
+                                    products: correspondingProducts
+                                });
+                            }
+                        }
+                    })
+                });
+                
+            } else {
+                res.send({
+                    error: false,
+                    message: "you have no orders currently",
+                    orders: null
+                });
+            }
+        }
+    })
+})
+
+
 let port = process.env.PORT;
 if(port == null || port == ""){
   port = 3000;
