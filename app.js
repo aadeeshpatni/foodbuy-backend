@@ -213,9 +213,9 @@ app.post("/placeOrder", function(req, res) {
                 }
                 else {
                     console.log(JSON.stringify(orderedProduct));
-                    console.log("orderedQ: " + req.body.orderedQuantity);
-                    if(orderedProduct.quantity >= req.body.orderedQuantity) {
-                        const newQuantity = orderedProduct.quantity - req.body.orderedQuantity;
+                    console.log("orderedQ: " + req.body.productQuantity);
+                    if(orderedProduct.quantity >= req.body.productQuantity) {
+                        const newQuantity = orderedProduct.quantity - req.body.productQuantity;
                         Product.findByIdAndUpdate(
                             orderedProduct._id,
                             {quantity: newQuantity},
@@ -231,11 +231,11 @@ app.post("/placeOrder", function(req, res) {
                                 }
                                 else{
                                     console.log(JSON.stringify(updatedProduct));
-                                    const orderCost = req.body.orderedQuantity * updatedProduct.price;
+                                    const orderCost = req.body.productQuantity * updatedProduct.price;
                                     const newOrder = new Order({
                                         buyerId: buyer._id,
                                         productId: updatedProduct._id,
-                                        orderedQuantity: req.body.orderedQuantity,
+                                        orderedQuantity: req.body.productQuantity,
                                         time: Date.now(),
                                         cost: orderCost,
                                         dispatch: {
