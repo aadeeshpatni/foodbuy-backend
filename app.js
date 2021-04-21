@@ -71,6 +71,15 @@ const orderSchema = new mongoose.Schema({
 const Order = mongoose.model("Order", orderSchema);
 
 
+const feedbackSchema = new mongoose.Schema({
+    submitterId: String,
+    receiverId: String,
+    productId: String,
+    rating: Number,
+    text: String
+});
+const Feedback = mongoose.model("Feedback", feedbackSchema);
+
 //path: url/users?userType=customer
 app.post("/users", function(req, res) {
     console.log("body: " + JSON.stringify(req.body));
@@ -374,6 +383,69 @@ app.get("/orders", function(req, res) {
         }
     })
 })
+
+
+//path: url/feedback
+/*
+    request body: 
+    {
+        submitterId: String,
+        receiverId: String,
+        productId: String,
+        rating: Number,
+        text: String
+    }
+*/
+app.post("/feedback", function(req, res) {
+    console.log("request body : " + JSON.stringify(req.body));
+    if(req.body.rating > 5 || req.body.rating < 0) {
+        res.send({
+            error: true,
+            message: "rating must be between 1 and 5"
+        });
+    }
+    const newFeedback = new Feedback(req.body);
+    newFeedback.save(function(err) {
+        if(err) {
+            console.log(err);
+            res.send({
+                err: true,
+                message: "error saving feedback"
+            });
+        }
+        else {
+            res.send({
+                err: false,
+                message: "feedback saved successfully"
+            });
+        }
+    });
+});
+
+//path: url/feedback?productId=[_id of the product for which feedback is to be loaded]
+app.get("/feedback", function(req, res) {
+    const requestedProductId = req.query.productId;
+    Feedback.find(
+        {productId: requestedProductId}, 
+        function(err, foundFeedbacks) {
+            if(err) {
+                console.log(err);
+                res.send({
+                    err: true,
+                    message: "error finding feedbacks for this product",
+                    feedbacks: null
+                });
+            }
+            else {
+                res.send({
+                    err: false,
+                    message: "feedbacks found successfully",
+                    feedbacks: foundFeedbacks
+                });
+            }
+        }
+    );
+});
 
 
 let port = process.env.PORT;
