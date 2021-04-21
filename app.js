@@ -409,13 +409,13 @@ app.post("/feedback", function(req, res) {
         if(err) {
             console.log(err);
             res.send({
-                err: true,
+                error: true,
                 message: "error saving feedback"
             });
         }
         else {
             res.send({
-                err: false,
+                error: false,
                 message: "feedback saved successfully"
             });
         }
@@ -431,14 +431,14 @@ app.get("/feedback", function(req, res) {
             if(err) {
                 console.log(err);
                 res.send({
-                    err: true,
+                    error: true,
                     message: "error finding feedbacks for this product",
                     feedbacks: null
                 });
             }
             else {
                 res.send({
-                    err: false,
+                    error: false,
                     message: "feedbacks found successfully",
                     feedbacks: foundFeedbacks
                 });
